@@ -1,0 +1,10 @@
+
+*.exe
+*.obj
+*.layout*
+*.autosave
+*.backup
+*.[oa]
+bin/
+obj/
+*.depend
