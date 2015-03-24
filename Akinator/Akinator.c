@@ -86,7 +86,7 @@ Node *playGame(Node *root)
     while(p->data.type == noanimal)
     {
         printf("%s\n", p->data.str);
-        printf("Enter y/n: ");
+        printf("Нажми y/n: ");
         char answer;
         scanf(" %c", &answer);
         if(answer == 'y')
@@ -95,4 +95,76 @@ Node *playGame(Node *root)
             p = p->nolink;
     }
     return p;
+}
+
+// -----
+
+bool addNode(Node **root, Node **parent, Data data, bool way)
+{
+    Node *temp = NULL;
+    temp = (Node *)malloc(sizeof(Node));
+    if(!temp)
+        return false;
+    if(!*root)
+        *root = temp;
+    else
+    {
+        if(way)
+            (*parent)->yeslink = temp;
+        else
+            (*parent)->nolink = temp;
+    }
+    *parent = temp;
+    temp = NULL;
+    return true;
+}
+
+// -----
+
+bool push(Node *pointer, Stack *stack)
+{
+    NodeForStack *temp = NULL;
+    temp = (NodeForStack *)malloc(sizeof(NodeForStack));
+    if(!temp)
+        return false;
+    temp->node = pointer;
+    temp->link = *stack;
+
+    (*stack)->link = temp;
+    temp = NULL;
+    return true;
+}
+
+void pop(Stack *stack)
+{
+    if(*stack)
+    {
+        NodeForStack *temp = *stack;
+        *stack = (*stack)->link;
+        temp->node = NULL;
+        temp->link = NULL;
+        free(temp);
+        temp = NULL;
+    }
+}
+
+bool isEmpty(Stack stack)
+{
+    return !stack;
+}
+
+bool onTop(Node **pointer, Stack stack)
+{
+    if(isEmpty(stack))
+    {
+        *pointer = stack->node;
+        return true;
+    }
+    return false;
+}
+
+void clearStack(Stack *stack)
+{
+    while(!isEmpty(*stack))
+        pop(stack);
 }

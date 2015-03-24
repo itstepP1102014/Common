@@ -1,0 +1,3 @@
+20 Оно живет в воде? noanimal
+no 4 кот animal
+yes 4 кит animal
