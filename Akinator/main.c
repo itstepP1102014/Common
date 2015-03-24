@@ -13,7 +13,7 @@ int main()
         printf("Я победила!\n");
     else
         printf("Я проиграла!\n");*/
-    Node *root = NULL;
+    //Node *root = NULL;
     char *str = NULL;
     int lengthOfString;
     FILE *filepointer = NULL;
