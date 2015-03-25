@@ -13,9 +13,8 @@ int main()
         printf("Я победила!\n");
     else
         printf("Я проиграла!\n");*/
-    //Node *root = NULL;
-    char *str = NULL;
-    int lengthOfString;
+// -----
+    Node *root = NULL;
     FILE *filepointer = NULL;
     filepointer = fopen("Example.txt", "r");
     if(!filepointer)
@@ -23,6 +22,9 @@ int main()
         fprintf(stderr, "Cannot open the file.\n");
         exit(1);
     }
+// -----
+    char *str = NULL;
+    int lengthOfString;
     fscanf(filepointer, "%d ", &lengthOfString);
     str = (char *)malloc(lengthOfString * sizeof(char));
     if(!str)
@@ -33,6 +35,10 @@ int main()
     }
     fgets(str, lengthOfString, filepointer);
     puts(str);
+    int indicator;
+    fscanf(filepointer, "%d", &indicator);
+    printf("%d", indicator);
+// -----
     free(str);
     str = NULL;
     fclose(filepointer);
