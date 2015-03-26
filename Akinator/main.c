@@ -14,7 +14,6 @@ int main()
     else
         printf("Я проиграла!\n");*/
 // -----
-    Node *root = NULL;
     FILE *filepointer = NULL;
     filepointer = fopen("Example.txt", "r");
     if(!filepointer)
@@ -23,24 +22,70 @@ int main()
         exit(1);
     }
 // -----
-    char *str = NULL;
-    int lengthOfString;
-    fscanf(filepointer, "%d ", &lengthOfString);
-    str = (char *)malloc(lengthOfString * sizeof(char));
-    if(!str)
+    Node *root = NULL;
+    Data temp;
+    fscanf(filepointer, "%d ", &temp.sizestr);
+    temp.str = (char *)malloc(temp.sizestr * sizeof(char));
+    if(!temp.str)
     {
         fclose(filepointer);
         fprintf(stderr, "No free memory.\n");
         exit(1);
     }
-    fgets(str, lengthOfString, filepointer);
-    puts(str);
+    fgets(temp.str, temp.sizestr, filepointer);
     int indicator;
-    fscanf(filepointer, "%d", &indicator);
-    printf("%d", indicator);
+    fscanf(filepointer, "%d\n", &indicator);
+    if(indicator)
+        temp.type = noanimal;
+    else
+        temp.type = animal;
+    addNode(&root, &root, temp, true);
+
+    Node *tempPointer = root;
+    Stack pointers = NULL;
+
+    while(!feof(filepointer))
+    {
+        int way;
+        fscanf(filepointer, "%d ", &way);
+        fscanf(filepointer, "%d ", &temp.sizestr);
+        temp.str = (char *)malloc(temp.sizestr * sizeof(char));
+        if(!temp.str)
+        {
+            fclose(filepointer);
+            fprintf(stderr, "No free memory.\n");
+            exit(1);
+        }
+        fgets(temp.str, temp.sizestr, filepointer);
+        int indicator;
+        fscanf(filepointer, "%d\n", &indicator);
+        if(indicator)
+            temp.type = noanimal;
+        else
+            temp.type = animal;
+
+        if(way)
+        {
+            push(tempPointer, &pointers);
+            addNode(&root, &tempPointer, temp, false);
+        }
+        else
+        {
+            onTop(&tempPointer, pointers);
+            pop(&pointers);
+            addNode(&root, &tempPointer, temp, true);
+        }
+    }
 // -----
-    free(str);
-    str = NULL;
+    Node *p = playGame(root);
+    printf("Это %s. Я угадала?\n", p->data.str);
+    char answer;
+    scanf(" %c", &answer);
+    if(answer == 'y')
+        printf("Я победила!\n");
+    else
+        printf("Я проиграла!\n");
+// -----
     fclose(filepointer);
     return 0;
 }

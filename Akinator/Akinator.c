@@ -105,16 +105,23 @@ bool addNode(Node **root, Node **parent, Data data, bool way)
     temp = (Node *)malloc(sizeof(Node));
     if(!temp)
         return false;
+    temp->data = data;
+    temp->yeslink = NULL;
+    temp->nolink = NULL;
     if(!*root)
+    {
         *root = temp;
+        temp->parent = NULL;
+    }
     else
     {
         if(way)
             (*parent)->yeslink = temp;
         else
             (*parent)->nolink = temp;
+        temp->parent = *parent;
+        *parent = temp;
     }
-    *parent = temp;
     temp = NULL;
     return true;
 }
@@ -130,7 +137,7 @@ bool push(Node *pointer, Stack *stack)
     temp->node = pointer;
     temp->link = *stack;
 
-    (*stack)->link = temp;
+    *stack = temp;
     temp = NULL;
     return true;
 }
