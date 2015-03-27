@@ -9,18 +9,18 @@ int main()
     do
     {
         system("clear");
-        filepointer = fopen("Example.txt", "r");
+        filepointer = fopen("DataBase.txt", "r");
         if(!filepointer)
         {
             fprintf(stderr, "Cannot open the file.\n");
             exit(1);
         }
-    // -----
         readFromFile(filepointer, &root);
         fclose(filepointer);
         filepointer = NULL;
     // -----
         play = playGame(root);
+
         printf("Это %s. Я угадала?\nНажми y/n: ", play->data.str);
         scanf(" %c", &answer);
         if(answer == 'y')
@@ -29,7 +29,7 @@ int main()
         {
             printf("Я проиграла! Помогите мне стать еще более умной и интересной!\n");
             addNewInformation(&root, play);
-            filepointer = fopen("Example.txt", "w");
+            filepointer = fopen("DataBase.txt", "w");
             if(!filepointer)
             {
                 //cleanTree(&root);
