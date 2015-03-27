@@ -26,6 +26,7 @@ void hangFork(Node **root, Node *parent, Node *fork, bool wayToChild)
             parent->yeslink = fork;
         else
             parent->nolink = fork;
+        fork->parent = parent;
     }
 }
 
@@ -56,7 +57,7 @@ bool addNewKnowledge(Node **root, Node *destination, char *question, char *newAn
     return true;
 }
 
-bool createNewNode(Node **node, char *str, enum Type type)
+bool createNewNode(Node **node, char *str, Type type)
 {
     char *p = NULL;
     p = (char *)malloc((strlen(str) + 1) * sizeof(char));
@@ -74,6 +75,9 @@ bool createNewNode(Node **node, char *str, enum Type type)
     q->data.str = p;
     q->data.sizestr = strlen(p) + 1;
     q->data.type = type;
+    q->parent = NULL;
+    q->yeslink = NULL;
+    q->nolink = NULL;
     *node = q;
     p = NULL;
     q = NULL;
@@ -99,36 +103,7 @@ Node *playGame(Node *root)
 
 // -----
 
-bool addNode(Node **root, Node **parent, Data data, bool way)
-{
-    Node *temp = NULL;
-    temp = (Node *)malloc(sizeof(Node));
-    if(!temp)
-        return false;
-    temp->data = data;
-    temp->yeslink = NULL;
-    temp->nolink = NULL;
-    if(!*root)
-    {
-        *root = temp;
-        temp->parent = NULL;
-    }
-    else
-    {
-        if(way)
-            (*parent)->yeslink = temp;
-        else
-            (*parent)->nolink = temp;
-        temp->parent = *parent;
-        *parent = temp;
-    }
-    temp = NULL;
-    return true;
-}
-
-// -----
-
-bool push(Node *pointer, Stack *stack)
+bool pushToStack(Node *pointer, Stack *stack)
 {
     NodeForStack *temp = NULL;
     temp = (NodeForStack *)malloc(sizeof(NodeForStack));
@@ -142,7 +117,7 @@ bool push(Node *pointer, Stack *stack)
     return true;
 }
 
-void pop(Stack *stack)
+void popFromStack(Stack *stack)
 {
     if(*stack)
     {
@@ -155,14 +130,14 @@ void pop(Stack *stack)
     }
 }
 
-bool isEmpty(Stack stack)
+bool isStackEmpty(Stack stack)
 {
     return !stack;
 }
 
-bool onTop(Node **pointer, Stack stack)
+bool onTopOfStack(Node **pointer, Stack stack)
 {
-    if(isEmpty(stack))
+    if(!isStackEmpty(stack))
     {
         *pointer = stack->node;
         return true;
@@ -172,6 +147,259 @@ bool onTop(Node **pointer, Stack stack)
 
 void clearStack(Stack *stack)
 {
-    while(!isEmpty(*stack))
-        pop(stack);
+    while(!isStackEmpty(*stack))
+        popFromStack(stack);
+}
+
+// -----
+
+void initializeQueue(Queue *queue)
+{
+    queue->head = NULL;
+    queue->tail = NULL;
+}
+
+bool pushToQueue(Node *pointer, Queue *queue)
+{
+    NodeForQueue *temp = (NodeForQueue *)malloc(sizeof(NodeForQueue));
+    if(!temp)
+        return false;
+    temp->node = pointer;
+    temp->link = NULL;
+
+    if(!(queue->head))
+    {
+        queue->head = temp;
+        queue->tail = temp;
+    }
+    else
+    {
+        queue->tail->link = temp;
+        queue->tail = temp;
+    }
+
+    temp = NULL;
+    return true;
+}
+
+void popFromQueue(Queue *queue)
+{
+    if(queue->head)
+    {
+        NodeForQueue *temp = queue->head;
+        queue->head = queue->head->link;
+        temp->node = NULL;
+        temp->link = NULL;
+        free(temp);
+        temp = NULL;
+
+        if(!(queue->head))
+            queue->tail = NULL;
+    }
+}
+
+bool isQueueEmpty(Queue queue)
+{
+    return !(queue.head);
+}
+
+bool onTopOfQueue(Node **pointer, Queue queue)
+{
+    if(!isQueueEmpty(queue))
+    {
+        *pointer = queue.head->node;
+        return true;
+    }
+    return false;
+}
+
+void clearQueue(Queue *queue)
+{
+    while(!isQueueEmpty(*queue))
+        popFromQueue(queue);
+}
+
+// -----
+
+bool addNode(Node **root, Node **node, int way, char *str, Type type)
+{
+    char *p = NULL;
+    p = (char *)malloc((strlen(str) + 1) * sizeof(char));
+    if(!p)
+        return false;
+    Node *q = NULL;
+    q = (Node *)malloc(sizeof(Node));
+    if(!q)
+    {
+        free(p);
+        p = NULL;
+        return false;
+    }
+    strcpy(p, str);
+    q->data.str = p;
+    q->data.sizestr = strlen(p) + 1;
+    q->data.type = type;
+    q->yeslink = NULL;
+    q->nolink = NULL;
+    q->parent = NULL;
+    if(!*root)
+        *root = q;
+    else
+    {
+        if(way)
+            (*node)->nolink = q;
+        else
+            (*node)->yeslink = q;
+        q->parent = *node;
+        *node = q;
+    }
+    p = NULL;
+    q = NULL;
+    return true;
+}
+
+bool readFromFile(FILE *filepointer, Node **root)
+{
+    Node *tempPointer = NULL;
+    char *str;
+    int way, temp, lengthOfStr;
+    Type type;
+    fscanf(filepointer, "%d ", &lengthOfStr);
+    str = (char *)malloc(lengthOfStr * sizeof(char));
+    if(!str)
+        return false;
+    fgets(str, lengthOfStr, filepointer);
+    fscanf(filepointer, "%d\n", &temp);
+    if(temp)
+        type = noanimal;
+    else
+        type = animal;
+    addNode(root, root, 0, str, type);
+    free(str);
+    str = NULL;
+
+    tempPointer = *root;
+
+    Stack pointers = NULL;
+
+    //while(!feof(filepointer))
+    while(!feof(filepointer))
+    {
+        fscanf(filepointer, "%d %d ", &way, &lengthOfStr);
+        str = (char *)malloc(lengthOfStr * sizeof(char));
+        if(!str)
+        {
+            clearStack(&pointers);
+            return false;
+        }
+        fgets(str, lengthOfStr, filepointer);
+        fscanf(filepointer, "%d\n", &temp);
+        if(temp)
+            type = noanimal;
+        else
+            type = animal;
+
+        if(way)
+            pushToStack(tempPointer, &pointers);
+        else
+        {
+            onTopOfStack(&tempPointer, pointers);
+            popFromStack(&pointers);
+        }
+        addNode(root, &tempPointer, way, str, type);
+        free(str);
+        str = NULL;
+    }
+
+    clearStack(&pointers);
+
+    return true;
+}
+
+void writeToFile(FILE *filepointer, Node *root)
+{
+    Node *tempPointer = root;
+    Stack pointers = NULL;
+    pushToStack(tempPointer, &pointers);
+    int way;
+    while(!isStackEmpty(pointers))
+    {
+        onTopOfStack(&tempPointer, pointers);
+        popFromStack(&pointers);
+        if(tempPointer == root)
+            fprintf(filepointer, "%d %s %d\n", tempPointer->data.sizestr, tempPointer->data.str, tempPointer->data.type);
+        else
+        {
+            if(tempPointer->parent->yeslink == tempPointer)
+                way = 0;
+            else
+                way = 1;
+            fprintf(filepointer, "%d %d %s %d\n", way, tempPointer->data.sizestr, tempPointer->data.str, tempPointer->data.type);
+        }
+
+        if(tempPointer->yeslink && tempPointer->nolink)
+        {
+            pushToStack(tempPointer->yeslink, &pointers);
+            pushToStack(tempPointer->nolink, &pointers);
+        }
+    }
+}
+
+void addNewInformation(Node **root, Node *destination)
+{
+    char question[200], animal[50], answer;
+    bool reply;
+    printf("Какое животное вы загадали? ");
+    getchar();
+    gets(animal);
+    printf("Какой вопрос характеризует это животное? ");
+    gets(question);
+    printf("Какой правильный ответ на этот вопрос для этого животного? y/n ");
+    scanf(" %c", &answer);
+    if(answer == 'y')
+        reply = true;
+    else
+        reply = false;
+    printf("Спасибо за введенные данные! В следующий раз я точно выиграю!\n");
+    addNewKnowledge(root, destination, question, animal, reply);
+}
+
+void cleanTree(Node **root)
+{
+    if(*root)
+    {
+        Queue queue;
+        initializeQueue(&queue);
+        Stack stack = NULL;
+        Node *temp = *root;
+        pushToQueue(temp, &queue);
+        while(!isQueueEmpty(queue))
+        {
+            onTopOfQueue(&temp, queue);
+            popFromQueue(&queue);
+            pushToStack(temp, &stack);
+            if(temp->yeslink && temp->nolink)
+            {
+                pushToQueue(temp->yeslink, &queue);
+                pushToQueue(temp->nolink, &queue);
+            }
+        }
+
+        while(!isStackEmpty(stack))
+        {
+            onTopOfStack(&temp, stack);
+            popFromStack(&stack);
+            temp->data.sizestr = 0;
+            temp->data.str = NULL;
+            ++(temp->data.type);
+            temp->parent = NULL;
+            temp->yeslink = NULL;
+            temp->nolink = NULL;
+            free(temp);
+            temp = NULL;
+        }
+
+        clearQueue(&queue);
+        clearStack(&stack);
+    }
 }

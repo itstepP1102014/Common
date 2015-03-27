@@ -2,91 +2,59 @@
 
 int main()
 {
-    /*Node *root = NULL;
-    createNewNode(&root, "кот", animal);
-    addNewKnowledge(&root, root, "Оно живёт в воде?", "кит", true);
-    Node *p = playGame(root);
-    printf("Это %s. Я угадала?\n", p->data.str);
-    char answer;
-    scanf(" %c", &answer);
-    if(answer == 'y')
-        printf("Я победила!\n");
-    else
-        printf("Я проиграла!\n");*/
-// -----
     FILE *filepointer = NULL;
-    filepointer = fopen("Example.txt", "r");
-    if(!filepointer)
-    {
-        fprintf(stderr, "Cannot open the file.\n");
-        exit(1);
-    }
-// -----
-    Node *root = NULL;
-    Data temp;
-    fscanf(filepointer, "%d ", &temp.sizestr);
-    temp.str = (char *)malloc(temp.sizestr * sizeof(char));
-    if(!temp.str)
-    {
-        fclose(filepointer);
-        fprintf(stderr, "No free memory.\n");
-        exit(1);
-    }
-    fgets(temp.str, temp.sizestr, filepointer);
-    int indicator;
-    fscanf(filepointer, "%d\n", &indicator);
-    if(indicator)
-        temp.type = noanimal;
-    else
-        temp.type = animal;
-    addNode(&root, &root, temp, true);
+    Node *root = NULL, *play = NULL;
+    char answer;
 
-    Node *tempPointer = root;
-    Stack pointers = NULL;
-
-    while(!feof(filepointer))
+    do
     {
-        int way;
-        fscanf(filepointer, "%d ", &way);
-        fscanf(filepointer, "%d ", &temp.sizestr);
-        temp.str = (char *)malloc(temp.sizestr * sizeof(char));
-        if(!temp.str)
+        system("clear");
+        filepointer = fopen("Example.txt", "r");
+        if(!filepointer)
         {
-            fclose(filepointer);
-            fprintf(stderr, "No free memory.\n");
+            fprintf(stderr, "Cannot open the file.\n");
             exit(1);
         }
-        fgets(temp.str, temp.sizestr, filepointer);
-        int indicator;
-        fscanf(filepointer, "%d\n", &indicator);
-        if(indicator)
-            temp.type = noanimal;
+    // -----
+        readFromFile(filepointer, &root);
+        fclose(filepointer);
+        filepointer = NULL;
+    // -----
+        play = playGame(root);
+        printf("Это %s. Я угадала?\nНажми y/n: ", play->data.str);
+        scanf(" %c", &answer);
+        if(answer == 'y')
+            printf("Я победила!\n");
         else
-            temp.type = animal;
+        {
+            printf("Я проиграла! Помогите мне стать еще более умной и интересной!\n");
+            addNewInformation(&root, play);
+            filepointer = fopen("Example.txt", "w");
+            if(!filepointer)
+            {
+                //cleanTree(&root);
+                free(root);
+                root = NULL;
+                free(play);
+                play = NULL;
+                fprintf(stderr, "Cannot open the file.\n");
+                exit(1);
+            }
+            writeToFile(filepointer, root);
+            fclose(filepointer);
+        }
 
-        if(way)
-        {
-            push(tempPointer, &pointers);
-            addNode(&root, &tempPointer, temp, false);
-        }
-        else
-        {
-            onTop(&tempPointer, pointers);
-            pop(&pointers);
-            addNode(&root, &tempPointer, temp, true);
-        }
+        //cleanTree(&root);
+        free(root);
+        root = NULL;
+        free(play);
+        play = NULL;
+
+        printf("Хочешь сыграть еще? y/n ");
+        scanf(" %c", &answer);
     }
-// -----
-    Node *p = playGame(root);
-    printf("Это %s. Я угадала?\n", p->data.str);
-    char answer;
-    scanf(" %c", &answer);
-    if(answer == 'y')
-        printf("Я победила!\n");
-    else
-        printf("Я проиграла!\n");
-// -----
-    fclose(filepointer);
+    while(answer == 'y');
+
     return 0;
 }
 

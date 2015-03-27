@@ -7,9 +7,11 @@
 #include <stdbool.h>
 #include <string.h>
 
+typedef enum Type_ {animal, noanimal} Type;
+
 typedef struct Data_
 {
-    enum Type {animal, noanimal} type;
+    Type type;
     char *str;
     int sizestr;
 } Data;
@@ -28,20 +30,38 @@ typedef struct NodeForStack_
 
 typedef NodeForStack * Stack;
 
+typedef NodeForStack NodeForQueue;
+
+typedef struct Queue_
+{
+    NodeForQueue *head, *tail;
+} Queue;
+
 void addNewFork(Node *oldAnimal, Node *newAnimal, Node *question, bool answer);
 void hangFork(Node **root, Node *parent, Node *fork, bool wayToChild);
 bool determineWayToChild(Node *node);
 bool addNewKnowledge(Node **root, Node *destination, char *question, char *newAnimal, bool rightAnswer);
-bool createNewNode(Node **node, char *str, enum Type type);
+bool createNewNode(Node **node, char *str, Type type);
 
 Node *playGame(Node *root);
 
-bool addNode(Node **root, Node **parent, Data data, bool way);
-
-bool push(Node *pointer, Stack *stack);
-void pop(Stack *stack);
-bool isEmpty(Stack stack);
-bool onTop(Node **pointer, Stack stack);
+bool pushToStack(Node *pointer, Stack *stack);
+void popFromStack(Stack *stack);
+bool isStackEmpty(Stack stack);
+bool onTopOfStack(Node **pointer, Stack stack);
 void clearStack(Stack *stack);
+
+void initializeQueue(Queue *queue);
+bool pushToQueue(Node *pointer, Queue *queue);
+void popFromQueue(Queue *queue);
+bool isQueueEmpty(Queue queue);
+bool onTopOfQueue(Node **pointer, Queue queue);
+void clearQueue(Queue *queue);
+
+bool addNode(Node **root, Node **node, int way, char *str, Type type);
+bool readFromFile(FILE *filepointer, Node **root);
+void writeToFile(FILE *filepointer, Node *root);
+void addNewInformation(Node **root, Node *destination);
+void cleanTree(Node **root);
 
 #endif // AKINATOR_H_INCLUDED
