@@ -30,13 +30,6 @@ typedef struct NodeForStack_
 
 typedef NodeForStack * Stack;
 
-typedef NodeForStack NodeForQueue;
-
-typedef struct Queue_
-{
-    NodeForQueue *head, *tail;
-} Queue;
-
 void addNewFork(Node *oldAnimal, Node *newAnimal, Node *question, bool answer);
 void hangFork(Node **root, Node *parent, Node *fork, bool wayToChild);
 bool determineWayToChild(Node *node);
@@ -50,18 +43,11 @@ void popFromStack(Stack *stack);
 bool isStackEmpty(Stack stack);
 bool onTopOfStack(Node **pointer, Stack stack);
 void clearStack(Stack *stack);
-
-void initializeQueue(Queue *queue);
-bool pushToQueue(Node *pointer, Queue *queue);
-void popFromQueue(Queue *queue);
-bool isQueueEmpty(Queue queue);
-bool onTopOfQueue(Node **pointer, Queue queue);
-void clearQueue(Queue *queue);
-
 bool addNode(Node **root, Node **node, int way, char *str, Type type);
 bool readFromFile(FILE *filepointer, Node **root);
 void writeToFile(FILE *filepointer, Node *root);
 void addNewInformation(Node **root, Node *destination);
 void cleanTree(Node **root);
+void clearTree(Node **root);
 
 #endif // AKINATOR_H_INCLUDED

@@ -153,74 +153,6 @@ void clearStack(Stack *stack)
 
 // -----
 
-void initializeQueue(Queue *queue)
-{
-    queue->head = NULL;
-    queue->tail = NULL;
-}
-
-bool pushToQueue(Node *pointer, Queue *queue)
-{
-    NodeForQueue *temp = (NodeForQueue *)malloc(sizeof(NodeForQueue));
-    if(!temp)
-        return false;
-    temp->node = pointer;
-    temp->link = NULL;
-
-    if(!(queue->head))
-    {
-        queue->head = temp;
-        queue->tail = temp;
-    }
-    else
-    {
-        queue->tail->link = temp;
-        queue->tail = temp;
-    }
-
-    temp = NULL;
-    return true;
-}
-
-void popFromQueue(Queue *queue)
-{
-    if(queue->head)
-    {
-        NodeForQueue *temp = queue->head;
-        queue->head = queue->head->link;
-        temp->node = NULL;
-        temp->link = NULL;
-        free(temp);
-        temp = NULL;
-
-        if(!(queue->head))
-            queue->tail = NULL;
-    }
-}
-
-bool isQueueEmpty(Queue queue)
-{
-    return !(queue.head);
-}
-
-bool onTopOfQueue(Node **pointer, Queue queue)
-{
-    if(!isQueueEmpty(queue))
-    {
-        *pointer = queue.head->node;
-        return true;
-    }
-    return false;
-}
-
-void clearQueue(Queue *queue)
-{
-    while(!isQueueEmpty(*queue))
-        popFromQueue(queue);
-}
-
-// -----
-
 bool addNode(Node **root, Node **node, int way, char *str, Type type)
 {
     char *p = NULL;
@@ -282,7 +214,6 @@ bool readFromFile(FILE *filepointer, Node **root)
 
     Stack pointers = NULL;
 
-    //while(!feof(filepointer))
     while(!feof(filepointer))
     {
         fscanf(filepointer, "%d %d ", &way, &lengthOfStr);
@@ -364,42 +295,20 @@ void addNewInformation(Node **root, Node *destination)
     addNewKnowledge(root, destination, question, animal, reply);
 }
 
-void cleanTree(Node **root)
+void clearTree(Node **root)
 {
     if(*root)
     {
-        Queue queue;
-        initializeQueue(&queue);
-        Stack stack = NULL;
-        Node *temp = *root;
-        pushToQueue(temp, &queue);
-        while(!isQueueEmpty(queue))
-        {
-            onTopOfQueue(&temp, queue);
-            popFromQueue(&queue);
-            pushToStack(temp, &stack);
-            if(temp->yeslink && temp->nolink)
-            {
-                pushToQueue(temp->yeslink, &queue);
-                pushToQueue(temp->nolink, &queue);
-            }
-        }
-
-        while(!isStackEmpty(stack))
-        {
-            onTopOfStack(&temp, stack);
-            popFromStack(&stack);
-            temp->data.sizestr = 0;
-            temp->data.str = NULL;
-            ++(temp->data.type);
-            temp->parent = NULL;
-            temp->yeslink = NULL;
-            temp->nolink = NULL;
-            free(temp);
-            temp = NULL;
-        }
-
-        clearQueue(&queue);
-        clearStack(&stack);
+        Node *temp1 = (*root)->yeslink, *temp2 = (*root)->nolink;
+        (*root)->data.sizestr = 0;
+        (*root)->data.str = NULL;
+        ++((*root)->data.type);
+        (*root)->yeslink = NULL;
+        (*root)->nolink = NULL;
+        (*root)->parent = NULL;
+        free((*root));
+        *root = NULL;
+        clearTree(&temp1);
+        clearTree(&temp2);
     }
 }

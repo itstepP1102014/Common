@@ -32,10 +32,7 @@ int main()
             filepointer = fopen("DataBase.txt", "w");
             if(!filepointer)
             {
-                //cleanTree(&root);
-                free(root);
-                root = NULL;
-                free(play);
+                clearTree(&root);
                 play = NULL;
                 fprintf(stderr, "Cannot open the file.\n");
                 exit(1);
@@ -44,16 +41,12 @@ int main()
             fclose(filepointer);
         }
 
-        //cleanTree(&root);
-        free(root);
-        root = NULL;
-        free(play);
+        clearTree(&root);
         play = NULL;
 
         printf("Хочешь сыграть еще? y/n ");
         scanf(" %c", &answer);
-    }
-    while(answer == 'y');
+    } while(answer == 'y');
 
     return 0;
 }
